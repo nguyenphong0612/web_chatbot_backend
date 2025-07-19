@@ -1,17 +1,22 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000; // 3000
 
 app.use(bodyParser.json());
+app.use(express.static(__dirname));
 
-const openai = new OpenAIApi(new Configuration({
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-}));
+});
 
 // In-memory conversation store: { sessionId: [ { role, content }, ... ] }
 const conversations = {};
@@ -29,11 +34,13 @@ app.post('/chat', async (req, res) => {
   conversations[sessionId].push({ role: 'user', content: message });
 
   try {
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: conversations[sessionId],
+      max_tokens: 150, // Giới hạn độ dài response
+      temperature: 0.7, // Giảm độ sáng tạo để tiết kiệm
     });
-    const aiMessage = completion.data.choices[0].message.content;
+    const aiMessage = completion.choices[0].message.content;
     conversations[sessionId].push({ role: 'assistant', content: aiMessage });
     res.json({ response: aiMessage });
   } catch (error) {

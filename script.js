@@ -16,7 +16,7 @@ function appendMessage(role, content) {
 function showLoading() {
   const loadingDiv = document.createElement('div');
   loadingDiv.className = 'message assistant loading';
-  loadingDiv.textContent = 'Đang xử lý...';
+  loadingDiv.textContent = 'Analyzing...';
   loadingDiv.id = 'loading-message';
   chatBox.appendChild(loadingDiv);
   chatBox.scrollTop = chatBox.scrollHeight;
@@ -39,7 +39,7 @@ chatForm.addEventListener('submit', async (e) => {
   showLoading();
 
   try {
-    const res = await fetch('/chat', {
+    const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, sessionId })
@@ -50,10 +50,10 @@ chatForm.addEventListener('submit', async (e) => {
     if (data.response) {
       appendMessage('assistant', data.response);
     } else if (data.error) {
-      appendMessage('assistant', 'Lỗi: ' + data.error);
+      appendMessage('assistant', 'Error: ' + data.error);
     }
   } catch (err) {
     hideLoading();
-    appendMessage('assistant', 'Lỗi kết nối mạng.');
+    appendMessage('assistant', 'Network error.');
   }
 }); 

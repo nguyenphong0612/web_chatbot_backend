@@ -5,6 +5,7 @@
     ],
     "routes": [
       { "src": "/chat", "dest": "/server.js" },
-      { "src": "/", "dest": "/index.html" }
+      { "src": "/", "dest": "/index.html" },
+      { "src": "/(.*)", "dest": "/$1" }
     ]
   }

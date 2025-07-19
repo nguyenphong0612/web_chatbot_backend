@@ -22,6 +22,7 @@ const openai = new OpenAI({
 const conversations = {};
 
 app.post('/chat', async (req, res) => {
+  console.log('Received request:', req.body);
   const { message, sessionId } = req.body;
   if (!message || !sessionId) {
     return res.status(400).json({ error: 'Missing message or sessionId' });

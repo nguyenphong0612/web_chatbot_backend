@@ -19,7 +19,7 @@ const conversations = {};
 async function saveConversationToSupabase(sessionId, conversation) {
   try {
     const { data, error } = await supabase
-      .from('conversations')
+      .from('conversations_web_chatbot')
       .insert([
         {
           conversation_id: sessionId,
@@ -69,7 +69,7 @@ module.exports = async (req, res) => {
     
     // Save conversation to Supabase
     const savedData = await saveConversationToSupabase(sessionId, conversations[sessionId]);
-    
+    // send response to frontend (client)
     res.status(200).json({ 
       response: aiMessage,
       savedToSupabase: savedData ? true : false,

@@ -1,6 +1,5 @@
 const OpenAI = require('openai');
-const fs = require('fs');
-const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -8,37 +7,35 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 // In-memory conversation store
 const conversations = {};
 
-// Function to save conversation to JSON file
-function saveConversation(sessionId, conversation) {
+// Function to save conversation to Supabase
+async function saveConversationToSupabase(sessionId, conversation) {
   try {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const fileName = `conversation_${sessionId}_${timestamp}.json`;
-    const filePath = path.join(__dirname, 'conversations', fileName);
-    
-    // Create conversations directory if it doesn't exist
-    const conversationsDir = path.join(__dirname, 'conversations');
-    if (!fs.existsSync(conversationsDir)) {
-      fs.mkdirSync(conversationsDir, { recursive: true });
+    const { data, error } = await supabase
+      .from('conversations')
+      .insert([
+        {
+          conversation_id: sessionId,
+          messages: conversation
+        }
+      ]);
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return null;
     }
-    
-    // Prepare conversation data
-    const conversationData = {
-      sessionId: sessionId,
-      timestamp: new Date().toISOString(),
-      messages: conversation,
-      totalMessages: conversation.length
-    };
-    
-    // Write to JSON file
-    fs.writeFileSync(filePath, JSON.stringify(conversationData, null, 2));
-    console.log(`Conversation saved: ${fileName}`);
-    
-    return fileName;
+
+    console.log('Conversation saved to Supabase:', data);
+    return data;
   } catch (error) {
-    console.error('Error saving conversation:', error);
+    console.error('Error saving to Supabase:', error);
     return null;
   }
 }
@@ -70,15 +67,16 @@ module.exports = async (req, res) => {
     const aiMessage = completion.choices[0].message.content;
     conversations[sessionId].push({ role: 'assistant', content: aiMessage });
     
-    // Save conversation to JSON file
-    const savedFileName = saveConversation(sessionId, conversations[sessionId]);
+    // Save conversation to Supabase
+    const savedData = await saveConversationToSupabase(sessionId, conversations[sessionId]);
     
     res.status(200).json({ 
       response: aiMessage,
-      savedFile: savedFileName,
+      savedToSupabase: savedData ? true : false,
       messageCount: conversations[sessionId].length
     });
   } catch (error) {
+    console.error('Error:', error);
     res.status(500).json({ error: error.message });
   }
 }; 

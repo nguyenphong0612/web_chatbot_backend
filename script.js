@@ -51,7 +51,7 @@ chatForm.addEventListener('submit', async (e) => {
     
     const data = await res.json();
     hideLoading();
-    
+    console.log(data);
     if (data.response) {
       appendMessage('assistant', data.response);
       

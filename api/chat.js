@@ -19,20 +19,20 @@ const conversations = {};
 async function saveConversationToSupabase(sessionId, conversation) {
   try {
     const { data, error } = await supabase
-      .from('conversations_web_chatbot')
-      .insert([
+      .from('conversations')
+      .upsert([
         {
           conversation_id: sessionId,
           messages: conversation
         }
-      ]);
+      ], { onConflict: ['conversation_id'] }); // chỉ định cột unique
 
     if (error) {
       console.error('Supabase error:', error);
       return null;
     }
 
-    console.log('Conversation saved to Supabase:', data);
+    console.log('Conversation upserted to Supabase:', data);
     return data;
   } catch (error) {
     console.error('Error saving to Supabase:', error);

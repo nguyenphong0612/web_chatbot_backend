@@ -56,7 +56,7 @@ chatForm.addEventListener('submit', async (e) => {
       appendMessage('assistant', data.response);
       
       // Show save status (optional)
-      if (data.savedToSupabase) {
+      if (data.saveConversationToSupabase) {
         console.log('✅ Conversation saved to Supabase');
       } else {
         console.log('❌ Failed to save to Supabase');

@@ -73,7 +73,7 @@ module.exports = async (req, res) => {
     res.status(200).json({ 
       response: aiMessage,
       savedToSupabase: savedData ? true : false,
-      messageCount: conversations[sessionId].length
+      //messageCount: conversations[sessionId].length
     });
   } catch (error) {
     console.error('Error:', error);

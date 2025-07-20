@@ -44,16 +44,29 @@ chatForm.addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, sessionId })
     });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    
     const data = await res.json();
     hideLoading();
     
     if (data.response) {
       appendMessage('assistant', data.response);
+      
+      // Show save status (optional)
+      if (data.savedToSupabase) {
+        console.log('✅ Conversation saved to Supabase');
+      } else {
+        console.log('❌ Failed to save to Supabase');
+      }
     } else if (data.error) {
       appendMessage('assistant', 'Error: ' + data.error);
     }
   } catch (err) {
     hideLoading();
-    appendMessage('assistant', 'Network error.');
+    console.error('Network error:', err);
+    appendMessage('assistant', 'Network error. Please try again.');
   }
 }); 

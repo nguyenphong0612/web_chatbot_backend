@@ -15,6 +15,16 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // In-memory conversation store
 const conversations = {};
 
+// Function to get current date context
+function getCurrentDateContext() {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const currentDay = now.getDate();
+  
+  return `Hôm nay là ngày ${currentDay}/${currentMonth}/${currentYear}. Năm hiện tại là ${currentYear}.`;
+}
+
 // Function to save conversation to Supabase
 async function saveConversationToSupabase(sessionId, conversation) {
   try {
@@ -53,7 +63,12 @@ module.exports = async (req, res) => {
   }
 
   if (!conversations[sessionId]) {
-    conversations[sessionId] = [];
+    conversations[sessionId] = [
+      {
+        role: 'system',
+        content: `Bạn là một AI assistant hữu ích. ${getCurrentDateContext()} Luôn cung cấp thông tin chính xác và cập nhật về thời gian hiện tại.`
+      }
+    ];
   }
   conversations[sessionId].push({ role: 'user', content: message });
 

@@ -8,12 +8,29 @@
 </head>
 <body>
   <div class="chat-container">
+    <div class="header">
+      <button id="history-btn" class="history-button">📋 Conversation_history</button>
+    </div>
     <div id="chat-box" class="chat-box"></div>
     <form id="chat-form">
       <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" required />
       <button type="submit">Send</button>
     </form>
   </div>
+  
+  <!-- Modal cho lịch sử hội thoại -->
+  <div id="history-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Lịch sử hội thoại</h3>
+        <span class="close">&times;</span>
+      </div>
+      <div id="history-list" class="history-list">
+        <!-- Lịch sử sẽ được load ở đây -->
+      </div>
+    </div>
+  </div>
+  
   <script src="script.js"></script>
 </body>
 </html> 
